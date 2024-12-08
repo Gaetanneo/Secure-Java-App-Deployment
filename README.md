@@ -1,5 +1,3 @@
-# Secure-Java-App-Deployment
-
 # **Project Overview**
 
 In modern DevOps, automation is crucial for efficient, reliable, and consistent software deployment. GitLab CI/CD is a powerful tool that helps streamline the entire software delivery process. In this project, we’ll explore how to use GitLab CI/CD to deploy a Java application (Board Game App) on an AWS Cloud-hosted Kubernetes cluster.
@@ -377,6 +375,36 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 ![pic44](https://github.com/user-attachments/assets/b1525b33-0753-4fc9-859f-22f351a4f29b)
     
     * Add the last stage(7th) to your .gitlab-ci.yml file, commit & push and observe a new pipeline run.
+    * `contents to add to your .gitlab-ci.yml file`
+```
+   k8s-deploy:
+  stage: deploy_to_eks
+  variables:
+    KUBE_CONTEXT: "arn:aws:eks:us-east-1:007572960009:cluster/boadgame-app-cluster"
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: ['']
+  before_script:
+    - yum update -y
+    - yum install -y curl unzip kubectl gettext
+    - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/
+    - aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+    - aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+    - aws configure set region us-east-1
+    - aws eks update-kubeconfig --name boadgame-app-cluster --region us-east-1
+    - kubectl config use-context "$KUBE_CONTEXT"
+  script:
+    - 'echo "Project path is: $CI_PROJECT_PATH"'
+    - envsubst < deployment-service.yaml.template > deployment-service.yaml
+    - kubectl apply -f deployment-service.yaml
+    - kubectl get pods
+    - kubectl get all
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+```
 
 # Pipeline View
 ![pic45](https://github.com/user-attachments/assets/76f9c9de-6b31-4548-8263-9ae6cb3adbd2)
@@ -455,12 +483,22 @@ Spans multiple Availability Zones for redundancy
 
    * Automated health checks
 ```
+![pic59](https://github.com/user-attachments/assets/5fca26f2-e321-44ab-8fcc-cd5875caf56b)
 
-![pic59](https://github.com/user-attachments/assets/5908b1de-cf5b-40f5-bf51-e2ef18593829)
+# **Conclusion:**
+In this project, we’ve covered the setup and deployment of a Java application on a cloud hosted Kubernetes cluster using GitLab CI/CD. The process included unit testing, security scanning, code quality analysis, building, containerization, and finally, deploying the application. This pipeline automates the software delivery process, ensuring high-quality code is consistently deployed in a secure and efficient manner. By running the pipeline, we’ve seen how GitLab CI/CD can streamline complex deployments, integrating multiple tools and processes into a single automated workflow.
 
-For Documentation not to be too long, I omitted to upload all the 103 screenshots that I took when doing this project. Troubleshooting is what we happily do for a living and it is always part of the Software delivery lice Cycle.
 
-if you want to see how I troubleshoot to fix my yaml files indentations errors, how I use Amazon Q to help me fix code smells after SonarQube code analysis, troubleshoot to find out why the gitlab runner went out of memory and steps to add more space to it, Troubleshoot when SonarQube went down and brought it back up and running, then Check out the README of this [GitHub repo](https://github.com/Gaetanneo/Boardgame-app-Pictures/blob/main/README.md)
+![pic60](https://github.com/user-attachments/assets/5908b1de-cf5b-40f5-bf51-e2ef18593829)
+
+ * For Documentation not to be too long, I omitted to upload all the 103 screenshots that I took when doing this project. Troubleshooting is what we happily do for a living and it is always part of the Software delivery lice Cycle.
+
+ * If you want to see how I troubleshoot to fix my yaml files indentations errors, how I use Amazon Q to help me fix code smells after SonarQube code analysis, troubleshoot to find out why the gitlab runner went out of memory and steps to add more space to it, Troubleshoot when SonarQube went down and brought it back up and running, then Check out the README of this [GitHub repo](https://github.com/Gaetanneo/Boardgame-app-Pictures/blob/main/README.md)
+ 
+ * If you have a gitlab account and you are interested to view all the pipeline stages I had when doing this project, check out this [gitlab repo](https://gitlab.com/Gaetanneo/java-app). It also includes all the code needed to build this Boardgame application.
+ 
+ * I also wrote a gitlab wiki page for this page that can be found [here](https://gitlab.com/Gaetanneo/java-app/-/wikis/Deploying-Secure-Java-Applications-on-AWS-EKS-Using-GitLab-CI/CD,-Maven,-Trivy-and-SonarQube) 
+
 
 
 ###Trust the Process !!!....
