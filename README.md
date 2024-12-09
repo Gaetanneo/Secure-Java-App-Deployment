@@ -1,3 +1,5 @@
+## **PROJECT:** **Secure Java Application Deployment** 
+
 # **Project Overview**
 
 In modern DevOps, automation is crucial for efficient, reliable, and consistent software deployment. GitLab CI/CD is a powerful tool that helps streamline the entire software delivery process. In this project, we’ll explore how to use GitLab CI/CD to deploy a Java application (Board Game App) on an AWS Cloud-hosted Kubernetes cluster.
