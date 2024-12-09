@@ -6,11 +6,11 @@ Using Gitlab CI/CD sometimes requires running lengthy jobs, we will use Terrafor
 
 This K8s configuration will be made by using eksctl. We'll cover the process from creating the Kubernetes cluster to deploying a containerized Java application, integrating essential DevOps tools like Terraform, Trivy and SonarQube along the way.
 
-The fun part of this project will be the integration of our gitlab instance with the k8s cluster hosted on AWS, automate the deployment of the application, test its functionality and finally monitor the application to ensure high availability & scalability
+The fun part of this project will be the integration of our gitlab instance with the k8s cluster hosted on AWS, automate the deployment of the application, test its functionality and finally monitor the application to ensure high availability & scalability.
 
 # **Step-by-Step Workflow:**
 
-* 1- Outsourcing the App code from the Software team (Code local Test & Review)
+* 1- Outsourcing the App code from the Software/Dev team (Code local Test & Review)
 * 2- Creating & Registering a GitLab Runner on an AWS EC2 instance using Terraform
 * 3-Creating a GitLab CI/CD Pipeline
 * 4-Unit Testing with Maven
@@ -39,8 +39,8 @@ The fun part of this project will be the integration of our gitlab instance with
 
 # **Step 1:** Outsourcing the application code
 
-* The application code is usually obtained from the internal software team or from a customer, The code is reviewed, test locally on the DevOps Engineer's computer. A new gitlab repository is then created, and this is where the magic will happen.
-* After the code review, the changes (if necessary) will be committed and push to the gitlab repo
+* The application code is usually obtained from the internal software team or from a customer, The code is reviewed, tested locally on the DevOps Engineer's computer. A new gitlab repository is then created, and this is where the magic will happen.
+* After the code review, the changes (if necessary) will be committed and pushed to the gitlab repo
 
 ![pic3](https://github.com/user-attachments/assets/9c743f8d-ae79-43b0-ad17-c6148dff73f1)
 
@@ -66,7 +66,7 @@ The fun part of this project will be the integration of our gitlab instance with
 
 ![pic7](https://github.com/user-attachments/assets/42cd329c-d3cb-47c2-ab2e-644214be453d)
 
-* NOTE: At this point, it will be important to update the rules for the user gitlab-runner
+* NOTE: At this point, it will be important to update the rules for the user `gitlab-runner`
 
   ```
    *  `ssh to the gitlab server`
@@ -124,7 +124,9 @@ This step was already done in the in step3, You can check the stage view to chec
 * From the pipeline configuration, we decided to save all the artifacts in a file (fs.html) that can be accessed on the browser. For a production ready environment, it is recommended to send it to a separate artifact repository like Nexus or JFrog
 * `trivy fs --format table -o fs.html`
 
-![pic15](https://github.com/user-attachments/assets/a88e0e18-cdda-4177-939e-4ea2e081d79c) ![pic16](https://github.com/user-attachments/assets/e117c30a-fc45-4346-9cf2-050a31f5355f)
+![pic15](https://github.com/user-attachments/assets/a88e0e18-cdda-4177-939e-4ea2e081d79c) 
+
+![pic16](https://github.com/user-attachments/assets/e117c30a-fc45-4346-9cf2-050a31f5355f)
 
 # **Step 6:** Analyzing Code Quality with SonarQube
 
@@ -188,7 +190,7 @@ The code for this stage should look like this:
   - main
 ```
     
- * to commit and push all the last changes/updates you just made. 
+ * Commit and push all the last changes/updates you just made. 
  * This will trigger another pipeline run.
 
 # Pipeline View
@@ -200,7 +202,7 @@ The code for this stage should look like this:
 The Stage 4 view shows a `Check Quality Gate status` as `PASSED` and gives us a link to access the analysis report on our [SonarQube server](http://18.286.175.247:9000/dashboard?id=Gaetanneo_java-app_AZOT-AUzSnmSuW41jsxU)
 
 ![pic29](https://github.com/user-attachments/assets/6be4a436-3dc5-4ed8-af3d-abe10267f3b0)
- `RESULTS: 15 Bugs, 0 Vulnerabilies, 47 Code Smells, QUALITY GATE STATUS= PASSED`
+ `RESULTS: 15 Bugs, 0 Vulnerabilies, 47 Code Smells, **QUALITY GATE STATUS= PASSED**`
 
 # **Step 7 & 8 & 9:** Containerizing the application(image build) & Image scan & Image push.
    * Once testing and scanning are completed, the next step is to build the application package and create a Docker image.
@@ -253,13 +255,14 @@ image_push:
 # Stage 6 view
 ![pic31](https://github.com/user-attachments/assets/f92e8619-a40f-42d4-bbc3-d917b16fb47f)
 
- * If you ran those 3 stages successfully, you can see on the stage6 view above, where to find the docker image that was recently built and pushed. i.e: your gitlab container registry.
+ * If you ran those 3 stages successfully, you can see on the stage6 view above where to find the docker image that was recently built and pushed. i.e: your gitlab container registry.
  * From your project page, Navigate to Deploy/Container Registry. If you click on the tagID, you will be able to view the `Manifest digest` that was visible from the stage6 view.
 ![pic32](https://github.com/user-attachments/assets/8db27e23-78dc-410e-a080-40f6be3ec367)
 
 #  **Step 10:** Setting up AWS EKS Cluster using eksctl
    * In your local gitlab project directory, create a new file called cluster-setup.yaml that will be use to customize your cluster the way you want it.
-   * We have decided to build an EKS cluster that will have 2 node groups and each node group will have 2 node that can auto-scale on demand, based on traffic. 
+   * We have decided to build an EKS cluster that will have 2 node groups and each node group will have 2 nodes, that can auto-scale based on traffic demand. 
+    
    * `cluster-setup.yaml contents`
 ```
 apiVersion: eksctl.io/v1alpha5
@@ -288,15 +291,15 @@ nodeGroups:
  * Just out of curiosity, let's take a look at the CFT auto-generated by eksctl.
 ![pic35](https://github.com/user-attachments/assets/4b3eedc9-7948-4e30-b9ae-96c4927568c8)
 
- * With AWS constant search of innovation, we now have the ability to build a CloudFormation console mode, that will ease the problem of making mistake when writing a CFT code from scratch
+ * With AWS constant search for innovation, we now have the ability to build a CFT using the CloudFormation console mode. This will ease the problem of making mistakes when writing a CFT code from scratch.
 ![pic36](https://github.com/user-attachments/assets/ba0e2a2e-cc99-4d08-ab1d-819fedac22c6)
 
- * Having a look at the stacks ready(CREATION_COMPLETE!!!), it means that our customized EKS cluster is ready for use. On average, it takes about 15 minutes to spin up a k8s cluster.
+ * Having a look at the stacks ready(CREATION_COMPLETE!!!), it means that our customized EKS cluster is ready for use. On average, it takes about 15 minutes to spin up a k8s cluster on AWS.
  * There are 2 ways of verifying that our EKS cluster is ready: 
          * Through the local Terminal (CLI), because eskctl will also update your local kubeconfig file. In most windows computers, you can find the file `config` by running the command:
-`
+```
  cat ~/.kube/config
-,
+```
           On your local machine, run `kubectl get nodes` to list all your nodes in your k8s cluster
 ![pic37](https://github.com/user-attachments/assets/36d72a7c-21b9-44ea-b26c-b326df606874)
     
@@ -308,7 +311,7 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 
 #  **Step 11:** Connecting EKS Cluster with GitLab
 
-    * After creating the EKS cluster, the next step is to connect it to GitLab to manage deployments directly from your CI/CD pipeline.
+    * After creating the EKS cluster, the next step is to connect it to GitLab, in order to automate deployments directly from your CI/CD pipeline.
     * Integrating gitlab and EKS can be done by:
           * a-Creating an agent
               * From your gitlab project, Navigate to `Operate/Kubernetes Cluster/Connect a Cluster`
@@ -327,10 +330,11 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 ```
               * After running those commands one at a time, the k8s agent will be deployed. Confirm it by refreshing the page on gitlab and checking if the connection status of the agent is showing `Connected` with a `green` check mark.
 ![pic40](https://github.com/user-attachments/assets/b2e67ac4-59dd-455a-98ba-6af77c3f240f)
-          * c- Create the secret config file for CI-Registry authentication with the EKS cluster
-              * Now we need to add the registry credentials in Kubernetes manifest so that it can pull the image while creating deployment.
-              * create secret named `registry-credentials
-              * create the 2 Deloy Tokens(They will be used as our container registry’s username and password) 
+
+           * c- Create the secret config file for CI-Registry authentication with the EKS cluster
+              * Now we need to add the registry credentials in Kubernetes manifest so that it can pull the image during the deployment.
+              * create secret named `registry-credentials.yaml`
+              * create the 2 Deploy Tokens(They will be used as our container registry’s username and password) 
 
 ![pic41](https://github.com/user-attachments/assets/a345644b-53c3-4056-81fa-dba7ef533afd)
 ![pic42](https://github.com/user-attachments/assets/5f8a51bf-ffbb-4d93-a27b-169b2b3dbf81)
@@ -340,7 +344,7 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 ```
 ![pic43](https://github.com/user-attachments/assets/8cf76e34-424c-4d16-90ba-f98a59731ef2)
               * You can see that it saved a secret config file (registry-credentials.yml) for the gitlab instance CI registry, using the deploy tokens we just obtained.
-              * The last part of this authentication process will be applying/installing that gitlab instance secret to the EKS cluster, using kubectl. This will establish the full handshake connection between your gitlab instance CI registry and your EKS cluster in AWS. Run the command: ` kubectl apply -f registry-credentials.yml  
+              * The last part of this authentication process will be applying/installing that gitlab instance secret to the EKS cluster, using kubectl. This will establish the full handshake connection between your gitlab instance CI registry and your EKS cluster in AWS. From your local terminal, Run the command: `kubectl apply -f registry-credentials.yml`  
    
  * Create an agent configuration file named config.yaml in your local machine gitlab repository: 
 ```
@@ -348,7 +352,8 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
    mkdir -p .gitlab/agents/eks-k8s/
    vi .gitlab/agents/eks-k8s/config.yaml
 ```
-  * Contents of `config.yaml`
+ * Contents of `config.yaml`
+  
 ```
    gitops:
        manifest_projects:
@@ -368,19 +373,20 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 
 #  **Step 12:** Deploying the application on Kubernetes cluster(EKS)
 
-    * AWS EKS was our best option to choose for cloud deployment purposes, simply because we want this Boardgame application to be highly available, regardless if we receive a high volume of traffic.
-    * Application deployed on EKS are containerized applications that are running in pods, those pods can communicate with one another through the core DNS and VPC CNI (container Network interface).
+    * AWS EKS was our best option to choose for cloud deployment purposes, simply because we want this Boardgame application to be highly available, regardless if we receive a high volume of traffic or not.
+    * Applications deployed on EKS are containerized applications that are running in pods, those pods can communicate with one another through the core DNS and VPC CNI (container Network interface).
     * Since our k8s cluster is hosted on AWS, the control plane is managed by the cloud provider.
     * A very important step not to forget would be adding all the environment variables for cloud access(AWS creds).
 ![pic44](https://github.com/user-attachments/assets/b1525b33-0753-4fc9-859f-22f351a4f29b)
     
-    * Add the last stage(7th) to your .gitlab-ci.yml file, commit & push and observe a new pipeline run.
+    * Add the last 7th stage to your .gitlab-ci.yml file, commit & push and observe a new pipeline run.
+    
     * `contents to add to your .gitlab-ci.yml file`
 ```
    k8s-deploy:
   stage: deploy_to_eks
   variables:
-    KUBE_CONTEXT: "arn:aws:eks:us-east-1:007572960009:cluster/boadgame-app-cluster"
+    KUBE_CONTEXT: "arn:aws:eks:us-east-1:007572960009:cluster/boadgame-app-cluster" #ARN of EKS cluster
   image:
     name: amazon/aws-cli:latest
     entrypoint: ['']
@@ -413,6 +419,7 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
 ![pic46](https://github.com/user-attachments/assets/db594c6f-728f-497a-8ef2-f1a21bec72a9)
 
 #  **Step 13:** Verify & Test the Successful application Deployment
+
     * Since we have the kube config file on our local computer, we can check the k8s deployment from the CLI by running few commands: `kubectl get pods` ; `kubectl get svc` or `kubectl get all`, and check if all the pods are showing a status: `Ready`
 ![pic46](https://github.com/user-attachments/assets/7831ee3e-a761-43e0-8a21-cb7052afc7e2)    
 
@@ -426,27 +433,20 @@ Also, Knowing that an EKS is made out of nodes that are actually EC2 instances, 
     * A proper way of verifying the application deployment would be running the command `kubectl get services`, this command will show you the service `external IP URL= a6b7c549b6e124d028e2c0884b6e6ac0-1507032152.us-east-1.elb.amazonaws.com`, which is also showing the `TYPE = Loadbalancer.`
     *  You can Navigate to your EC2 service on the AWS console, click on the load balancer details to see the exact same DNS name of your Kubernetes service.
 
-```**NOTES:**
-An Elastic Load Balancer (ELB) in an EKS cluster serves several important purposes: [1]
-
-Traffic Distribution:
-
-Distributes incoming traffic across multiple pods
-
-Ensures even load distribution across worker nodes
-
-Prevents any single pod from being overwhelmed
-
-High Availability:
-
-Performs health checks on pods
-
-Routes traffic only to healthy pods
-
-Automatically handles pod failures
+```
+   **NOTES:**
+An Elastic Load Balancer (ELB) in an EKS cluster serves several important purposes:
+- Traffic Distribution:
+- Distributes incoming traffic across multiple pods
+- Ensures even load distribution across worker nodes
+- Prevents any single pod from being overwhelmed
+- High Availability:
+- Performs health checks on pods
+- Routes traffic only to healthy pods
+- Automatically handles pod failures
+- Spans multiple Availability Zones for redundancy
 ```
 
-Spans multiple Availability Zones for redundancy
 ![pic49](https://github.com/user-attachments/assets/3ddfc4bd-18f7-4bfe-a119-b223c305730a)
 
     * Finally, Let's use the Load balancer DNS name, copy it and paste on your browser. 
@@ -461,12 +461,12 @@ Spans multiple Availability Zones for redundancy
 ![pic58](https://github.com/user-attachments/assets/054408f8-e3e2-4cb4-9a73-04bf08d5cc42)
 
 # **Step 14:** Monitoring the application
-   * Depending on your company environment, you can monitor the application for reliability and high availability using different tools. Follow the official documentations of each tools to properly integrate the tools and the applications deployed on your k8s cluster. There are so many open source tools out there, but I will name a few.  
-       *  Using Amazon CloudWatch
-       *  Using Prometheus and Grafana
+   * Depending on your company environment, you can monitor the application for reliability and high availability using different tools. Follow the official documentations of each tools to properly integrate the tools and the applications deployed on your k8s cluster. There are so many open source tools out there, but I will name a few:  
+       *  Amazon CloudWatch
+       *  Prometheus and Grafana
        *  LENS / KARPENTER
 ```
-   NOTES: Benefits of application monitoring provide:
+   **NOTES:** Benefits of application monitoring provide:
    * Real-time monitoring of application health
 
    * Resource usage tracking
@@ -491,7 +491,7 @@ In this project, we’ve covered the setup and deployment of a Java application 
 
 ![pic60](https://github.com/user-attachments/assets/5908b1de-cf5b-40f5-bf51-e2ef18593829)
 
- * For Documentation not to be too long, I omitted to upload all the 103 screenshots that I took when doing this project. Troubleshooting is what we happily do for a living and it is always part of the Software delivery lice Cycle.
+ * For this documentation not to be too long, I omitted to upload all the 103 screenshots that I took when doing this project. Troubleshooting is what we happily do for a living and it is always part of the Software development life Cycle.
 
  * If you want to see how I troubleshoot to fix my yaml files indentations errors, how I use Amazon Q to help me fix code smells after SonarQube code analysis, troubleshoot to find out why the gitlab runner went out of memory and steps to add more space to it, Troubleshoot when SonarQube went down and brought it back up and running, then Check out the README of this [GitHub repo](https://github.com/Gaetanneo/Boardgame-app-Pictures/blob/main/README.md)
  
@@ -502,4 +502,3 @@ In this project, we’ve covered the setup and deployment of a Java application 
 
 
 ###Trust the Process !!!....
-
