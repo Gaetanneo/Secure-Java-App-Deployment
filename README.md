@@ -465,7 +465,7 @@ An Elastic Load Balancer (ELB) in an EKS cluster serves several important purpos
 # **Step 14:** Monitoring the application
    * Depending on your company environment, you can monitor the application for reliability and high availability using different tools. Follow the official documentations of each tools to properly integrate the tools and the applications deployed on your k8s cluster. There are so many open source tools out there, but I will name a few:  
        *  Amazon CloudWatch
-       *  Prometheus and Grafana
+       *  Prometheus and Grafana #Follow these steps on these [screenshots](https://github.com/Gaetanneo/Creating-an-EKS-cluster-with-Terraform-and-monitoring-Prom-Graf-/blob/main/README.md) to setup Prometheus and grafana on EKS. ignore the terraform section if you chose to provision your EKS cluster using eksctl.
        *  LENS / KARPENTER
 ```
    **NOTES:** Benefits of application monitoring provide:
@@ -493,13 +493,17 @@ In this project, we’ve covered the setup and deployment of a Java application 
 
 ![pic60](https://github.com/user-attachments/assets/5908b1de-cf5b-40f5-bf51-e2ef18593829)
 
+# **IMPORTANT NOTES:**
  * For this documentation not to be too long, I omitted to upload all the 103 screenshots that I took when doing this project. Troubleshooting is what we happily do for a living and it is always part of the Software development life Cycle.
 
  * If you want to see how I troubleshoot to fix my yaml files indentations errors, how I use Amazon Q to help me fix code smells after SonarQube code analysis, troubleshoot to find out why the gitlab runner went out of memory and steps to add more space to it, Troubleshoot when SonarQube went down and brought it back up and running, then Check out the README of this [GitHub repo](https://github.com/Gaetanneo/Boardgame-app-Pictures/blob/main/README.md)
  
  * If you have a gitlab account and you are interested to view all the pipeline stages I had when doing this project, check out this [gitlab repo](https://gitlab.com/Gaetanneo/java-app). It also includes all the code needed to build this Boardgame application.
  
- * I also wrote a gitlab wiki page for this page that can be found [here](https://gitlab.com/Gaetanneo/java-app/-/wikis/Deploying-Secure-Java-Applications-on-AWS-EKS-Using-GitLab-CI/CD,-Maven,-Trivy-and-SonarQube) 
+ * I also wrote a gitlab wiki page for this page that can be found [here](https://gitlab.com/Gaetanneo/java-app/-/wikis/Deploying-Secure-Java-Applications-on-AWS-EKS-Using-GitLab-CI/CD,-Maven,-Trivy-and-SonarQube)
+
+ * I chose a better approach to build the `EKS cluster`, using an infrastructure as a code tool called `Terraform`. In my code, I included a lot of `scripts` that will be ran automatically and provide me the necessary commands left to configure `prometheus` and `grafana` using `helm`, and expose both services on 2 `AWS Load balancers` LB1 & LB2. After creating this EKS cluster, I reintegrated the EKS with my gitlab instance and re-ran the Gitlab CI-CD pipeline to deploy my `Boardgame app` on the newly created EKS cluster. Then With Prometheus and grafana already running, I could monitor the `pod's health/status` using custom-built `grafana Dashboards`. All the EKS cluster `metrics & queries` could be seen on the `prometheus server`. We also set up some alerts rules to notify the `DevSecOps team` in case of any downtime, created some `contact points`, `notification policies` and `silences`(For app not needing monitoring during the christmas Holiday shutdown) on our grafana server. You can take a look at the `screenshots` for all these last tasks on this [Github repo](https://github.com/Gaetanneo/Creating-an-EKS-cluster-with-Terraform-and-monitoring-Prom-Graf-/blob/main/README.md)
+ * **NOTE:** The Terraform code I wrote to build this EKS cluster is in the main gitlab repo of this project.  
 
 
 
